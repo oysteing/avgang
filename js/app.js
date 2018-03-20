@@ -101,11 +101,54 @@
 		};
 		xmlhttp.send();
 	} 
-
+	
 	/**
 	 * Render destination information and append to element
 	 */
-	function renderDestination(destination, lineBlock) {
+	function renderDestination(destination, line, departures, content) {
+		var lineBlock = document.createElement("div");
+		lineBlock.className = "line-block";
+		lineBlock.setAttribute("style", "background-color: #" + line.LineColour);
+		var lineNumber = document.createElement("div");
+		lineNumber.className = "line-number";
+		lineNumber.appendChild(document.createTextNode(line.Name));
+		lineBlock.appendChild(lineNumber);
+		var lineDestination = document.createElement("div");
+		lineDestination.className = "line-destination";
+		lineDestination.appendChild(document.createTextNode(destination.Destination));
+		lineBlock.appendChild(lineDestination);
+		var favourite = document.createElement("input");
+		favourite.type = "checkbox";
+		favourite.className = "favourite";
+		if (isFavourite(destination.StopID, destination.LineID, destination.Destination)) {
+			favourite.checked = true;
+		}
+		favourite.setAttribute("stopid", destination.StopID);
+		favourite.setAttribute("lineid",  destination.LineID);
+		favourite.setAttribute("destination", destination.Destination);
+		favourite.addEventListener("change", toggleFavourite);
+		lineBlock.appendChild(favourite);
+		var vehicleIcon = document.createElement("span");
+		vehicleIcon.className = "vehicle " + TRANSPORTATION_TYPE[line.Transportation];
+		lineBlock.appendChild(vehicleIcon);
+		content.appendChild(lineBlock);
+
+		var node = document.createElement("div");
+		node.className = "departures";
+		for (var i = 0; i < departures.length && i < 4; i++) {
+			var departureNode = document.createTextNode(formatTime(departures[i]));
+			node.appendChild(departureNode);
+		}
+		content.appendChild(node);
+	}
+
+	/**
+	 * Render destination information and append to element
+	 * 
+	 * Fetch line information as it is not known. Wrapper to allow common rendering
+	 * for favourites and stop based queries
+	 */
+	function renderDestinationFetchLine(destination, content) {
 		var xmlhttp = new XMLHttpRequest();
 
 		xmlhttp.open("GET", "http://reisapi.ruter.no/Line/GetDataByLineID/" + destination.LineID);
@@ -115,35 +158,12 @@
 				
 				if (xmlhttp.status === 200) {
 					var response = xmlhttp.response;
-					
-					console.log("renderDestination;response="+JSON.stringify(response));
-					console.log("renderDestination;destination="+JSON.stringify(destination));
-					lineBlock.className = "line-block";
-					lineBlock.setAttribute("style", "background-color: #" + response.LineColour);
-					var lineNumber = document.createElement("div");
-					lineNumber.className = "line-number";
-					lineNumber.appendChild(document.createTextNode(response.Name));
-					lineBlock.appendChild(lineNumber);
-					var lineName = document.createElement("div");
-					var lineDestination = document.createElement("div");
-					lineDestination.className = "line-destination";
-					lineDestination.appendChild(document.createTextNode(destination.Destination));
-					var vehicleIcon = document.createElement("span");
-					vehicleIcon.className = TRANSPORTATION_TYPE[response.Transportation];
-					lineDestination.appendChild(vehicleIcon);
-					var favourite = document.createElement("input");
-					favourite.type = "checkbox";
-					favourite.className = "favourite";
-					if (isFavourite(destination.StopID, destination.LineID, destination.Destination)) {
-						favourite.checked = true;
+
+					var departures = [];
+					for (var i = 0; i < destination.MonitoredStopVisits.length; i++) {
+						departures.push(new Date(destination.MonitoredStopVisits[i].MonitoredVehicleJourney.MonitoredCall.ExpectedDepartureTime));
 					}
-					favourite.setAttribute("stopid", destination.StopID);
-					favourite.setAttribute("lineid",  destination.LineID);
-					favourite.setAttribute("destination", destination.Destination);
-					favourite.addEventListener("change", toggleFavourite);
-					lineDestination.appendChild(favourite);
-					lineName.appendChild(lineDestination);
-					lineBlock.appendChild(lineName);
+					renderDestination(destination, response, departures, content);
 				} else {
 					console.error("Kunne ikke hente data. Sjekk internettforbindelsen. HTTP status " + xmlhttp.status);
 				}
@@ -153,21 +173,6 @@
 		xmlhttp.send();
 	}
 	
-	/**
-	 * Render element with a list of departure times
-	 */
-	function renderDepartures(departures) {
-		var departuresNode = document.createElement("div");
-		departuresNode.className = "departures";
-		for (var i = 0; i < departures.length && departures < 4; i++) {
-			var departure = departures[i];
-			var expectedDepartureTime = new Date(departure.MonitoredVehicleJourney.MonitoredCall.ExpectedDepartureTime);
-			var departureNode = document.createTextNode(formatTime(expectedDepartureTime));
-			departuresNode.appendChild(departureNode);
-		}
-		return departuresNode;
-	}
-
 	/**
 	 * Show real time departure times for favourites
 	 * 
@@ -181,10 +186,7 @@
 			content.innerHTML = '';
 			for (var i = 0; i < stop.length; i++) {
 				var destination = stop[i];
-				var lineBlock = document.createElement("div");
-				content.appendChild(lineBlock);
-				renderDestination(destination, lineBlock);
-				content.appendChild(renderDepartures(destination.MonitoredStopVisits));
+				renderDestinationFetchLine(destination, content);
 			}
 			// TBD support more than one favourite stop - multiple pages?
 			break;
@@ -211,44 +213,12 @@
 	 */
 	function showDepartures(stop, destinations) {
 		document.getElementById("stopp").innerHTML = stop.Name;
+		var content = document.getElementById("content");
 		document.getElementById("content").innerHTML = '';
 		for (var key in destinations) {
 			var destination = destinations[key];
-			console.log("showDepartures;destination="+destination);
-			var lineBlock = document.createElement("div");
-			lineBlock.className = "line-block";
-			lineBlock.setAttribute("style", "background-color: #" + destination.lineColour);
-			var lineNumber = document.createElement("div");
-			lineNumber.className = "line-number";
-			lineNumber.appendChild(document.createTextNode(destination.publishedLineName));
-			lineBlock.appendChild(lineNumber);
-			var lineDestination = document.createElement("div");
-			lineDestination.className = "line-destination";
-			lineDestination.appendChild(document.createTextNode(destination.destinationName));
-			lineBlock.appendChild(lineDestination);
-			var favourite = document.createElement("input");
-			favourite.type = "checkbox";
-			favourite.className = "favourite";
-			if (isFavourite(stop.ID, destination.lineRef, destination.destinationName)) {
-				favourite.checked = true;
-			}
-			favourite.setAttribute("stopid", stop.ID);
-			favourite.setAttribute("lineid", destination.lineRef);
-			favourite.setAttribute("destination", destination.destinationName);
-			favourite.addEventListener("change", toggleFavourite);
-			lineBlock.appendChild(favourite);
-			var vehicleIcon = document.createElement("span");
-			vehicleIcon.className = "vehicle " + VEHICLE_MODE_CLASSES[destination.vehicleMode];
-			lineBlock.appendChild(vehicleIcon);
-			document.getElementById("content").appendChild(lineBlock);
-			
-			var node = document.createElement("div");
-			node.className = "departures";
-			for (var i = 0; i < destination.departures.length && i < 4; i++) {
-				var departureNode = document.createTextNode(formatTime(destination.departures[i]));
-				node.appendChild(departureNode);
-			}
-			document.getElementById("content").appendChild(node);
+			var line = {LineColour: destination.lineColour, Name: destination.publishedLineName, Transportation: destination.vehicleMode};
+			renderDestination({LineID: destinations[key].lineRef, Destination: destinations[key].destinationName, StopID: stop.ID}, line, destination.departures, content);
 		}
 	}
 
@@ -472,7 +442,7 @@
 		registerEvents();
 		
 		detectNearestStop();
-		localStorage.setItem("favourites", "3012050-9101-Spikkestad");
+//		localStorage.setItem("favourites", "3012050-9101-Spikkestad");
 		var favourites = localStorage.getItem("favourites");
 		if (favourites) {
 			getFavourites(favourites);
