@@ -3,9 +3,9 @@
 	var stops = [],
 		refresher,
 		positionWatch,
-		VEHICLE_MODE_CLASSES = ["icon-svg icon-svg-Bus", "icon-svg icon-svg-Boat", "icon-svg icon-svg-Train", "icon-svg icon-svg-Tram", "icon-svg icon-svg-Metro"],
+		VEHICLE_MODE_TO_TRANSPORTATION = [2, 5, 6, 7, 8],
 		TRANSPORTATION_TYPE = ["", "icon-svg icon-svg-Bus", "icon-svg icon-svg-Bus", "", "icon-svg icon-svg-Train", "icon-svg icon-svg-Boat", "icon-svg icon-svg-Train", "icon-svg icon-svg-Tram", "icon-svg icon-svg-Metro"],
-//		DEFAULT_STOP = {ID: 3010443, Name: "Grefsenveien"};
+//		DEFAULT_STOP = {ID: 3011721, Name: "Stovner T"};
 		DEFAULT_STOP = {ID: 3012050, Name: "Alna [tog]"};
 
 	function popup(message){
@@ -217,7 +217,7 @@
 		document.getElementById("content").innerHTML = '';
 		for (var key in destinations) {
 			var destination = destinations[key];
-			var line = {LineColour: destination.lineColour, Name: destination.publishedLineName, Transportation: destination.vehicleMode};
+			var line = {LineColour: destination.lineColour, Name: destination.publishedLineName, Transportation: VEHICLE_MODE_TO_TRANSPORTATION[destination.vehicleMode]};
 			renderDestination({LineID: destinations[key].lineRef, Destination: destinations[key].destinationName, StopID: stop.ID}, line, destination.departures, content);
 		}
 	}
