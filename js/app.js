@@ -1,12 +1,14 @@
 (function(tau) {
 
+	var mainPage = document.getElementById('main'),
+		stoppestedPage = document.getElementById('stoppested'),
+		content = document.getElementById('content'),
+		sections = document.getElementById('sections'),
+		sectionChanger, pageIndicator;
+	
 	var stops = [],
 		refresher,
-		positionWatch,
-		VEHICLE_MODE_TO_TRANSPORTATION = [2, 5, 6, 7, 8],
-		TRANSPORTATION_TYPE = ["", "icon-svg icon-svg-Bus", "icon-svg icon-svg-Bus", "", "icon-svg icon-svg-Train", "icon-svg icon-svg-Boat", "icon-svg icon-svg-Train", "icon-svg icon-svg-Tram", "icon-svg icon-svg-Metro"],
-//		DEFAULT_STOP = {ID: 3011721, Name: "Stovner T"};
-		DEFAULT_STOP = {ID: 3012050, Name: "Alna [tog]"};
+		positionWatch;
 
 	function popup(message){
 		document.getElementById("popup").innerHTML = message;
@@ -20,8 +22,9 @@
 	function clickStop(event) {
 		var li = event.target.parentElement;
 		clearInterval(refresher);
-		getStop({ID: li.getAttribute("data-id"), Name: li.getAttribute("data-value")});
-		refresher = setInterval(getStop, 10000, {ID: li.getAttribute("data-id"), Name: li.getAttribute("data-value")});
+		var stop = {ID: li.getAttribute("data-id"), Name: li.getAttribute("data-value")};
+		refreshStop(stop);
+		localStorage.setItem("currentStop", JSON.stringify(stop));
 	}
 	
 	/**
@@ -35,162 +38,14 @@
 			var li = document.createElement("li");
 			var link = document.createElement("a");
 			link.setAttribute("href", "#main");
-			link.appendChild(document.createTextNode(stops[i].Name));
+			link.appendChild(document.createTextNode(stops[i].properties.name));
 			li.appendChild(link);
-			li.setAttribute("data-id", stops[i].ID);
-			li.setAttribute("data-value", stops[i].Name);
+			li.setAttribute("data-id", stops[i].properties.id);
+			li.setAttribute("data-value", stops[i].properties.name);
 			ul.appendChild(li);
 		}
 		ul.addEventListener("click", clickStop, {once: true});
 		stoppesteder.replaceChild(ul, stoppesteder.childNodes[0]);
-	}
-	
-	function addFavourite(favourite) {
-		var favouritesString = localStorage.getItem("favourites");
-		var favourites = favouritesString === null ? new Set() : new Set(favouritesString.split(","));
-		favourites.add(favourite);
-		localStorage.setItem("favourites", Array.from(favourites).join(","));
-	}
-
-	function removeFavourite(favourite) {
-		var favouritesString = localStorage.getItem("favourites");
-		var favourites = favouritesString === null ? new Set() : new Set(favouritesString.split(","));
-		favourites.delete(favourite);
-		localStorage.setItem("favourites", Array.from(favourites).join(","));
-	}
-	
-	function isFavourite(stopID, lineID, destination) {
-		var favourite = stopID + "-" + lineID + "-" + destination;
-		var favouritesString = localStorage.getItem("favourites");
-		var favourites = favouritesString === null ? new Set() : new Set(favouritesString.split(","));
-		return favourites.has(favourite);
-	}
-	
-	function toggleFavourite(event) {
-		var stopID = event.target.getAttribute("stopID");
-		var lineID = event.target.getAttribute("lineID");
-		var destination = event.target.getAttribute("destination");
-		var favourite = stopID + "-" + lineID + "-" + destination;
-		if (this.checked) {
-			console.log("Adding favourite " + favourite);
-			addFavourite(favourite);
-		} else {
-			console.log("Resetting favourites");
-			removeFavourite(favourite);
-		}
-	}
-
-	/**
-	 * Update the text of an HTML element with the name of a stop
-	 */
-	function showStopName(stopID, element) {
-		var xmlhttp = new XMLHttpRequest();
-
-		xmlhttp.open("GET", "http://reisapi.ruter.no/Place/GetStop/" + stopID);
-		xmlhttp.responseType = "json";
-		xmlhttp.onreadystatechange = function() {
-			if (xmlhttp.readyState === 4) {
-				
-				if (xmlhttp.status === 200) {
-					element.textContent = xmlhttp.response.Name ? xmlhttp.response.Name : "Ingen stopp funnet";
-				} else {
-					console.error("Kunne ikke hente data. Sjekk internettforbindelsen. HTTP status " + xmlhttp.status);
-				}
-				xmlhttp = null;
-			}
-		};
-		xmlhttp.send();
-	} 
-	
-	/**
-	 * Render destination information and append to element
-	 */
-	function renderDestination(destination, line, departures, content) {
-		var lineBlock = document.createElement("div");
-		lineBlock.className = "line-block";
-		lineBlock.setAttribute("style", "background-color: #" + line.LineColour);
-		var lineNumber = document.createElement("div");
-		lineNumber.className = "line-number";
-		lineNumber.appendChild(document.createTextNode(line.Name));
-		lineBlock.appendChild(lineNumber);
-		var lineDestination = document.createElement("div");
-		lineDestination.className = "line-destination";
-		lineDestination.appendChild(document.createTextNode(destination.Destination));
-		lineBlock.appendChild(lineDestination);
-		var favourite = document.createElement("input");
-		favourite.type = "checkbox";
-		favourite.className = "favourite";
-		if (isFavourite(destination.StopID, destination.LineID, destination.Destination)) {
-			favourite.checked = true;
-		}
-		favourite.setAttribute("stopid", destination.StopID);
-		favourite.setAttribute("lineid",  destination.LineID);
-		favourite.setAttribute("destination", destination.Destination);
-		favourite.addEventListener("change", toggleFavourite);
-		lineBlock.appendChild(favourite);
-		var vehicleIcon = document.createElement("span");
-		vehicleIcon.className = "vehicle " + TRANSPORTATION_TYPE[line.Transportation];
-		lineBlock.appendChild(vehicleIcon);
-		content.appendChild(lineBlock);
-
-		var node = document.createElement("div");
-		node.className = "departures";
-		for (var i = 0; i < departures.length && i < 4; i++) {
-			var departureNode = document.createTextNode(formatTime(departures[i]));
-			node.appendChild(departureNode);
-		}
-		content.appendChild(node);
-	}
-
-	/**
-	 * Render destination information and append to element
-	 * 
-	 * Fetch line information as it is not known. Wrapper to allow common rendering
-	 * for favourites and stop based queries
-	 */
-	function renderDestinationFetchLine(destination, content) {
-		var xmlhttp = new XMLHttpRequest();
-
-		xmlhttp.open("GET", "http://reisapi.ruter.no/Line/GetDataByLineID/" + destination.LineID);
-		xmlhttp.responseType = "json";
-		xmlhttp.onreadystatechange = function() {
-			if (xmlhttp.readyState === 4) {
-				
-				if (xmlhttp.status === 200) {
-					var response = xmlhttp.response;
-
-					var departures = [];
-					for (var i = 0; i < destination.MonitoredStopVisits.length; i++) {
-						departures.push(new Date(destination.MonitoredStopVisits[i].MonitoredVehicleJourney.MonitoredCall.ExpectedDepartureTime));
-					}
-					renderDestination(destination, response, departures, content);
-				} else {
-					console.error("Kunne ikke hente data. Sjekk internettforbindelsen. HTTP status " + xmlhttp.status);
-				}
-				xmlhttp = null;
-			}
-		};
-		xmlhttp.send();
-	}
-	
-	/**
-	 * Show real time departure times for favourites
-	 * 
-	 * Limitation: only renders one stop/one page
-	 */
-	function showFavourites(favouriteModel) {
-		for (var stopID in favouriteModel) {
-			var stop = favouriteModel[stopID];
-			showStopName(stopID, document.getElementById("stopp"));
-			var content = document.getElementById("content"); 
-			content.innerHTML = '';
-			for (var i = 0; i < stop.length; i++) {
-				var destination = stop[i];
-				renderDestinationFetchLine(destination, content);
-			}
-			// TBD support more than one favourite stop - multiple pages?
-			break;
-		}
 	}
 	
 	/**
@@ -200,104 +55,109 @@
 		var now = new Date();
 		var difference = Math.floor((time - now)/1000/60);
 		if (difference < 1) {
-			return "nå ";
+			return "nå";
 		} else if (difference < 60) {
-			return difference + "m ";
+			return "om " + difference + " min";
 		} else {
-			return str_pad(time.getHours()) + ":" + str_pad(time.getMinutes()) + " ";
+			return str_pad(time.getHours()) + ":" + str_pad(time.getMinutes());
 		}
+	}
+
+	/**
+	 * Render a single departure by modifying the DOM directly
+	 */
+	function renderDeparture(departure) {
+		var destination = document.createElement("div");
+		destination.className = "destination";
+		destination.appendChild(document.createTextNode(departure.destinationDisplay.frontText));
+		var departureTime = document.createElement("div");
+		departureTime.className = "departure-time";
+		departureTime.appendChild(document.createTextNode(formatTime(new Date(departure.expectedDepartureTime))));
+		var departureElement = document.createElement("section");
+		departureElement.className = "section";
+		departureElement.appendChild(destination);
+		departureElement.appendChild(departureTime);
+		
+		return departureElement;
 	}
 
 	/**
 	 * Show real time departure times for one stop
 	 */
-	function showDepartures(stop, destinations) {
-		document.getElementById("stopp").innerHTML = stop.Name;
-		var content = document.getElementById("content");
-		document.getElementById("content").innerHTML = '';
-		for (var key in destinations) {
-			var destination = destinations[key];
-			var line = {LineColour: destination.lineColour, Name: destination.publishedLineName, Transportation: VEHICLE_MODE_TO_TRANSPORTATION[destination.vehicleMode]};
-			renderDestination({LineID: destinations[key].lineRef, Destination: destinations[key].destinationName, StopID: stop.ID}, line, destination.departures, content);
+	function renderStop(stop) {
+		document.getElementById("stopp").innerHTML = stop.name;
+		sections.innerHTML = '';
+		for (var estimatedCall of stop.estimatedCalls) {
+			sections.appendChild(renderDeparture(estimatedCall));
 		}
+		pageIndicator = tau.widget.PageIndicator(document.getElementById("pageIndicator"), {numberOfPages: stop.estimatedCalls.length});
+		pageIndicator.setActive(0);
+		sectionChanger.refresh();
 	}
 
 	/**
-	 * Display real time departure times for store favourites
+	 * Load departures for stop. Update every 10 seconds
+	 * 
+	 * @param stop
+	 * @returns
 	 */
-	function getFavourites(favourites) {
-		console.log("Loading favourites " + favourites);
-
-		var xmlhttp = new XMLHttpRequest();
-
-		xmlhttp.open("GET", "http://reisapi.ruter.no/Favourites/GetFavourites?favouritesRequest=" + favourites);
-		xmlhttp.responseType = "json";
-		xmlhttp.onreadystatechange = function() {
-			if (xmlhttp.readyState === 4) {
-				
-				if (xmlhttp.status === 200) {
-					var response = xmlhttp.response;
-	
-					if (response.length > 0) {
-						var favouriteModel = {};
-						// Iterate over favourites (stop/line/destination)
-						for (var i = 0; i < response.length; i++) {
-							var favourite = response[i];
-							if (!(favourite.StopID in favouriteModel)) {
-								favouriteModel[favourite.StopID] = [];
-							}
-							favouriteModel[favourite.StopID].push(favourite);
-						}
-						showFavourites(favouriteModel);
-					} else {
-						document.getElementById("stopp").innerHTML = "Favoritter";
-						document.getElementById("content").innerHTML = "Ingen avganger funnet";
-					}
-				} else {
-					console.error("Kunne ikke hente data. Sjekk internettforbindelsen. HTTP status " + xmlhttp.status);
-				}
-				xmlhttp = null;
-			}
-		};
-		xmlhttp.send();
+	function refreshStop(stop) {
+		getStop(stop);
+		refresher = setInterval(getStop, 10000, stop);
 	}
 
 	/**
-	 * Reads data from Ruter REIS API by XMLHttpRequest, and store received data to
-	 * the local array. Render departure times.
+	 * Reads data from Entur JourneyPlanner API by XMLHttpRequest. Render departure times.
 	 * 
 	 * @private
 	 */
 	function getStop(stop) {
 		var xmlhttp = new XMLHttpRequest();
 
-		xmlhttp.open("GET", "http://reisapi.ruter.no/StopVisit/GetDepartures/" + stop.ID);
+		xmlhttp.open("POST", "https://api.entur.io/journey-planner/v2/graphql");
+		xmlhttp.setRequestHeader("ET-Client-Name", "øystein_gisnås - avgang");
+		xmlhttp.setRequestHeader("Content-Type", "application/json");
 		xmlhttp.responseType = "json";
+		var query = `{
+				  stopPlace(id: "${stop.ID}") {
+					    id
+					    name
+					    estimatedCalls(timeRange: 72100, numberOfDepartures: 10) {     
+					      realtime
+					      aimedArrivalTime
+					      aimedDepartureTime
+					      expectedArrivalTime
+					      expectedDepartureTime
+					      actualArrivalTime
+					      actualDepartureTime
+					      date
+					      forBoarding
+					      forAlighting
+					      destinationDisplay {
+					        frontText
+					      }
+					      quay {
+					        id
+					      }
+					      serviceJourney {
+					        journeyPattern {
+					          line {
+					            id
+					            name
+					            transportMode
+					          }
+					        }
+					      }
+					    }
+					  }
+					}`;
 		xmlhttp.onreadystatechange = function() {
 			if (xmlhttp.readyState === 4) {
 				
 				if (xmlhttp.status === 200) {
 					var response = xmlhttp.response;
-	
-					if (response.length > 0) {
-						var destinations = {};
-						for (var i = 0; i < response.length; i++) {
-							var stopVisit = response[i];
-	
-							var destinationName = stopVisit.MonitoredVehicleJourney.DestinationName;
-							if (!(destinationName in destinations)) {
-								destinations[destinationName] = {
-									destinationName: destinationName,
-									lineColour: stopVisit.Extensions.LineColour,
-									publishedLineName: stopVisit.MonitoredVehicleJourney.PublishedLineName,
-									vehicleMode: stopVisit.MonitoredVehicleJourney.VehicleMode,
-									departures: [],
-									lineRef: stopVisit.MonitoredVehicleJourney.LineRef
-									};
-							}
-							destinations[destinationName].departures.push(new Date(stopVisit.MonitoredVehicleJourney.MonitoredCall.ExpectedDepartureTime));
-						}
-						showDepartures(stop, destinations);
+					if (response !== null) {
+						renderStop(response.data.stopPlace);
 					} else {
 						document.getElementById("stopp").innerHTML = stop.Name;
 						document.getElementById("content").innerHTML = "Ingen avganger funnet";
@@ -308,18 +168,17 @@
 				xmlhttp = null;
 			}
 		};
-		xmlhttp.send();
+		xmlhttp.send(JSON.stringify({query: query}));
 	}
 
 	/**
-	 * Look up closest stops from Ruter REIS API and create list
-	 * 
-	 * Parameter coordinates must be coordinates of type UTMCoord
+	 * Look up closest stops from Entur Geocoding API and create list
 	 */
-	function getClosestStops(coordinates) {
+	function getClosestStops(coords) {
 		var xmlhttp = new XMLHttpRequest();
 		
-		xmlhttp.open("GET", "http://reisapi.ruter.no/Place/GetClosestStops?coordinates=x=" + Math.round(coordinates.easting) + ",y=" + Math.round(coordinates.northing));
+		xmlhttp.open("GET", "https://api.entur.io/geocoder/v1/reverse?layers=venue&point.lat=" + coords.latitude + "&point.lon=" + coords.longitude);
+		xmlhttp.setRequestHeader("ET-Client-Name", "øystein_gisnås - avgang");
 		xmlhttp.responseType = "json";
 		xmlhttp.onreadystatechange = function() {
 			if (xmlhttp.readyState === 4) {
@@ -327,8 +186,8 @@
 				if (xmlhttp.status === 200) {
 					var response = xmlhttp.response;
 	
-					if (response.length > 0) {
-						stops = xmlhttp.response;
+					if (response.type === 'FeatureCollection' && response.features.length > 0) {
+						stops = xmlhttp.response.features;
 						renderStops(stops);
 					} else {
 						console.error("Ingen stopp funnet");
@@ -343,12 +202,10 @@
 	}
 
 	/**
-	 * Convert position to UTM and display real time departures for closest stop
+	 * Display real time departures for closest stop
 	 */
 	function positionSuccess(position) {
-		var deg = new UTMConv.DegCoords(position.coords.latitude, position.coords.longitude);
-		var utm = deg.to_utm();
-		getClosestStops(utm);
+		getClosestStops(position.coords);
 	}
 
 	/**
@@ -409,19 +266,6 @@
 		}
 	}
 	
-	function scrollPage(event) {
-		var SCROLL_STEP = 50;
-		var elScroller = document.querySelector('.ui-page-active .ui-scroller');
-		
-		if (event.detail.direction === 'CW') {
-			/* Scroll down */
-			elScroller.scrollTop += SCROLL_STEP;
-		} else if (event.detail.direction === 'CCW') {
-			/* Scroll up */
-			elScroller.scrollTop -= SCROLL_STEP;
-		}
-	}
-	
 	/**
 	 * Register default events
 	 */
@@ -429,8 +273,60 @@
 		/* Register exit on back button */
 		document.addEventListener("tizenhwkey", keyEventHandler);
 		
-		/* Register page scrolling on bezel rotation */
-        document.addEventListener('rotarydetent', scrollPage, false);
+		// make SectionChanger object
+		sectionChanger = tau.widget.SectionChanger(content, {
+			circular: false,
+			orientation: "horizontal",
+			useBouncingEffect: true
+		});
+
+		content.addEventListener("sectionchange", function(e) {
+			pageIndicator.setActive(e.detail.active);
+		});
+
+		mainPage.addEventListener('pagebeforeshow', function() {
+			
+			sectionChanger.refresh();
+			pageIndicator.setActive(sectionChanger.getActiveSectionIndex());
+
+			/* Register section change on bezel rotation */
+			var changeSection = function(event) {
+				if (event.detail.direction === 'CW' && sectionChanger.getActiveSectionIndex() < sectionChanger.sections.length-1) {
+					// Next section
+					sectionChanger.setActiveSection(sectionChanger.getActiveSectionIndex()+1);
+				} else if (event.detail.direction === 'CCW' && sectionChanger.getActiveSectionIndex() > 0) {
+					// Previous section
+					sectionChanger.setActiveSection(sectionChanger.getActiveSectionIndex()-1);
+				}
+			};
+			
+			document.addEventListener('rotarydetent', changeSection, false);
+		    
+		    mainPage.addEventListener('pagebeforehide', function pageHideHandler() {
+				mainPage.removeEventListener('pagebeforehide', pageHideHandler, false);
+			    document.removeEventListener('rotarydetent', changeSection, false);
+			}, false);
+		}, false);
+
+		stoppestedPage.addEventListener('pagebeforeshow', function() {
+			var SCROLL_STEP = 50,
+				elScroller = stoppestedPage.querySelector('.ui-scroller');
+
+			var scrollPage = function(event) {
+				if (event.detail.direction === 'CW') {
+					elScroller.scrollTop += SCROLL_STEP;
+				} else if (event.detail.direction === 'CCW') {
+					elScroller.scrollTop -= SCROLL_STEP;
+				}
+			};
+
+			document.addEventListener('rotarydetent', scrollPage, false);
+		    
+			stoppestedPage.addEventListener('pagebeforehide', function pageHideHandler() {
+				stoppestedPage.removeEventListener('pagebeforehide', pageHideHandler, false);
+			    document.removeEventListener('rotarydetent', scrollPage, false);
+			}, false);
+		}, false);
 	}
 	
 	/**
@@ -442,14 +338,12 @@
 		registerEvents();
 		
 		detectNearestStop();
-//		localStorage.setItem("favourites", "3012050-9101-Spikkestad");
-		var favourites = localStorage.getItem("favourites");
-		if (favourites) {
-			getFavourites(favourites);
-			refresher = setInterval(getFavourites, 10000, favourites);
-		} else {
-			getStop(DEFAULT_STOP);
-			refresher = setInterval(getStop, 10000, DEFAULT_STOP);
+
+ 		if ("currentStop" in localStorage) {
+ 			var stop = JSON.parse(localStorage.getItem("currentStop"));
+ 			refreshStop(stop);
+ 		} else {
+ 			sections.innerHTML = '<section><div><span style="font-size: smaller">Vis sanntidsavganger ved å velge stoppested i nærheten</span></div><div><img src="img/arrow.svg" width="50"/></div></section>';
 		}
 	}
 
