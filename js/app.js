@@ -2,6 +2,7 @@
 
 	var mainPage = document.getElementById('main'),
 		stoppestedPage = document.getElementById('stoppested'),
+		stoppesteder = document.getElementById('stoppesteder'),
 		content = document.getElementById('content'),
 		sections = document.getElementById('sections'),
 		sectionChanger, pageIndicator;
@@ -23,7 +24,8 @@
 		var li = event.target.parentElement;
 		clearInterval(refresher);
 		var stop = {ID: li.getAttribute("data-id"), Name: li.getAttribute("data-value")};
-		refreshStop(stop);
+		//refreshStop(stop);
+		getStop(stop);
 		localStorage.setItem("currentStop", JSON.stringify(stop));
 	}
 	
@@ -64,17 +66,61 @@
 	}
 
 	/**
+	 * Map transport mode to icon name
+	 */
+	function transportModeToIcon(transportMode) {
+		switch (transportMode) {
+//		case "air":
+//			return
+		case "bus":
+			return "img/bus.svg";
+//		case "cableway":
+//			return
+//		case "water":
+//			return
+//		case "funicular":
+//			return
+//		case "lift":
+//			return
+//		case "rail":
+//			return
+		case "metro":
+			return "img/t-banen.svg";
+//		case "tram":
+//			return
+//		case "coach":
+//			return
+//		case "unknown":
+//			return
+		default:
+			console.log("Sorry, we don't have an icon for transportMode " + transportMode);
+			return
+		}
+	}
+
+	/**
 	 * Render a single departure by modifying the DOM directly
 	 */
 	function renderDeparture(departure) {
+		var transportMode = document.createElement("div");
+		var transportModeIcon = document.createElement("img");
+		transportModeIcon.className = "icon";
+		transportModeIcon.setAttribute("src", transportModeToIcon(departure.serviceJourney.line.transportMode));
+		transportMode.appendChild(transportModeIcon);
 		var destination = document.createElement("div");
 		destination.className = "destination";
+		var line = document.createElement("span");
+		line.className = "line";
+		line.setAttribute("style", "background-color: #" + departure.serviceJourney.line.presentation.colour)
+		line.appendChild(document.createTextNode(departure.serviceJourney.line.publicCode));
+		destination.appendChild(line);
 		destination.appendChild(document.createTextNode(departure.destinationDisplay.frontText));
 		var departureTime = document.createElement("div");
 		departureTime.className = "departure-time";
 		departureTime.appendChild(document.createTextNode(formatTime(new Date(departure.expectedDepartureTime))));
 		var departureElement = document.createElement("section");
 		departureElement.className = "section";
+		departureElement.appendChild(transportMode);
 		departureElement.appendChild(destination);
 		departureElement.appendChild(departureTime);
 		
@@ -119,38 +165,51 @@
 		xmlhttp.setRequestHeader("Content-Type", "application/json");
 		xmlhttp.responseType = "json";
 		var query = `{
-				  stopPlace(id: "${stop.ID}") {
-					    id
-					    name
-					    estimatedCalls(timeRange: 72100, numberOfDepartures: 10) {     
-					      realtime
-					      aimedArrivalTime
-					      aimedDepartureTime
-					      expectedArrivalTime
-					      expectedDepartureTime
-					      actualArrivalTime
-					      actualDepartureTime
-					      date
-					      forBoarding
-					      forAlighting
-					      destinationDisplay {
-					        frontText
-					      }
-					      quay {
-					        id
-					      }
-					      serviceJourney {
-					        journeyPattern {
-					          line {
-					            id
-					            name
-					            transportMode
-					          }
-					        }
-					      }
-					    }
-					  }
-					}`;
+		  stopPlace(id: "NSR:StopPlace:58366") {
+		    id
+		    name
+		    estimatedCalls(timeRange: 72100, numberOfDepartures: 10) {     
+		      realtime
+		      aimedArrivalTime
+		      aimedDepartureTime
+		      expectedArrivalTime
+		      expectedDepartureTime
+		      actualArrivalTime
+		      actualDepartureTime
+		      date
+		      forBoarding
+		      forAlighting
+		      destinationDisplay {
+		        frontText
+		      }
+		      quay {
+		        id
+		      }
+		      serviceJourney {
+      line {
+        publicCode
+        name
+        transportMode
+        transportSubmode
+        presentation {
+          colour
+          textColour
+        }
+        notices {
+          id
+          text
+        }
+        situations {
+          summary {
+            value
+            language
+          }
+        }
+      }
+		      }
+		    }
+		  }
+		}`;
 		xmlhttp.onreadystatechange = function() {
 			if (xmlhttp.readyState === 4) {
 				
@@ -171,6 +230,10 @@
 		xmlhttp.send(JSON.stringify({query: query}));
 	}
 
+	function selectJernbanetorget() {
+		getStop({ID: 'NSR:StopPlace:58366', Name: 'Jerbanetorget'});
+	}
+	
 	/**
 	 * Look up closest stops from Entur Geocoding API and create list
 	 */
@@ -190,7 +253,8 @@
 						stops = xmlhttp.response.features;
 						renderStops(stops);
 					} else {
-						console.error("Ingen stopp funnet");
+						stoppesteder.innerHTML = 'Ingen stoppesteder i nærheten<br/><a href="#main">(trykk for å velge Jernbanetorget)</a>';
+						stoppesteder.addEventListener("click", selectJernbanetorget, {once: true});
 					}
 				} else {
 					console.error("Kunne ikke hente data. Sjekk internettforbindelsen. HTTP status " + xmlhttp.status);
@@ -234,9 +298,7 @@
 	 * Start detcting position in order to create list of nearest stops
 	 */
 	function detectNearestStop() {
-		if (navigator.geolocation) {
-			positionWatch = navigator.geolocation.watchPosition(positionSuccess, positionError);
-		}
+		positionWatch = navigator.geolocation.watchPosition(positionSuccess, positionError);
 	}
 
 	/**
@@ -285,9 +347,10 @@
 		});
 
 		mainPage.addEventListener('pagebeforeshow', function() {
-			
 			sectionChanger.refresh();
-			pageIndicator.setActive(sectionChanger.getActiveSectionIndex());
+			if (pageIndicator) {
+				pageIndicator.setActive(sectionChanger.getActiveSectionIndex());
+			}
 
 			/* Register section change on bezel rotation */
 			var changeSection = function(event) {
@@ -341,7 +404,8 @@
 
  		if ("currentStop" in localStorage) {
  			var stop = JSON.parse(localStorage.getItem("currentStop"));
- 			refreshStop(stop);
+ 			//refreshStop(stop);
+ 			getStop(stop)
  		} else {
  			sections.innerHTML = '<section><div><span style="font-size: smaller">Vis sanntidsavganger ved å velge stoppested i nærheten</span></div><div><img src="img/arrow.svg" width="50"/></div></section>';
 		}

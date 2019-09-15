@@ -13,3 +13,5 @@ It is created using the Entur API and a Tizen web application.
 ## Further development
 
 * Add widget
+* Entur SDK
+* Entur component library
