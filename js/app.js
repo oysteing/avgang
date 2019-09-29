@@ -111,7 +111,7 @@
 		destination.className = "destination";
 		var line = document.createElement("span");
 		line.className = "line";
-		line.setAttribute("style", "background-color: #" + departure.serviceJourney.line.presentation.colour)
+		line.setAttribute("style", "background-color: #" + departure.serviceJourney.line.presentation.colour);
 		line.appendChild(document.createTextNode(departure.serviceJourney.line.publicCode));
 		destination.appendChild(line);
 		destination.appendChild(document.createTextNode(departure.destinationDisplay.frontText));
@@ -147,10 +147,10 @@
 	 * @param stop
 	 * @returns
 	 */
-	function refreshStop(stop) {
-		getStop(stop);
-		refresher = setInterval(getStop, 10000, stop);
-	}
+//	function refreshStop(stop) {
+//		getStop(stop);
+//		refresher = setInterval(getStop, 10000, stop);
+//	}
 
 	/**
 	 * Reads data from Entur JourneyPlanner API by XMLHttpRequest. Render departure times.
@@ -405,7 +405,7 @@
  		if ("currentStop" in localStorage) {
  			var stop = JSON.parse(localStorage.getItem("currentStop"));
  			//refreshStop(stop);
- 			getStop(stop)
+ 			getStop(stop);
  		} else {
  			sections.innerHTML = '<section><div><span style="font-size: smaller">Vis sanntidsavganger ved å velge stoppested i nærheten</span></div><div><img src="img/arrow.svg" width="50"/></div></section>';
 		}
