@@ -94,7 +94,7 @@
 //			return
 		default:
 			console.log("Sorry, we don't have an icon for transportMode " + transportMode);
-			return
+			return;
 		}
 	}
 
