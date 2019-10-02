@@ -39,6 +39,7 @@
     "build": "webpack",
     "build:dev": "webpack --mode development",
     "package": "tizen package -t wgt -- dist/",
-    "deploy": "tizen install --name dist/Avgang.wgt && tizen run -p zZJRnGeh3I"
+    "deploy": "tizen install --name dist/Avgang.wgt && tizen run -p zZJRnGeh3I",
+    "debug": "google-chrome --app=http://127.0.0.1:41785/devtools/inspector.html?ws=127.0.0.1:41785/devtools/page/939792C2-48EA-487A-9608-D648CD17C5CB"
   }
 }
