@@ -1,4 +1,5 @@
-import './css/style.css';
+import './css/style.scss';
+import './tau.js'
 import Arrow from './img/arrow.svg';
 
 (function(tau) {

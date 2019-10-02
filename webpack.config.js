@@ -2,9 +2,10 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 
-const copyFiles = new CopyWebpackPlugin([ {
-	from : 'config.xml'
-}, ]);
+const copyFiles = new CopyWebpackPlugin([
+		{from: 'config.xml'},
+		{from: 'src/img/icons8-tram-side-view-96.png'}
+	]);
 
 const extractCss = new MiniCssExtractPlugin({
 	filename: 'css/[name].css'
