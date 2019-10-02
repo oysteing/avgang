@@ -1,3 +1,6 @@
+import './css/style.css';
+import Arrow from './img/arrow.svg';
+
 (function(tau) {
 
 	var mainPage = document.getElementById('main'),
@@ -407,7 +410,7 @@
  			//refreshStop(stop);
  			getStop(stop);
  		} else {
- 			sections.innerHTML = '<section><div><span style="font-size: smaller">Vis sanntidsavganger ved å velge stoppested i nærheten</span></div><div><img src="img/arrow.svg" width="50"/></div></section>';
+ 			sections.innerHTML = '<section><div><span style="font-size: smaller">Vis sanntidsavganger ved å velge stoppested i nærheten</span></div><div><img src="' + Arrow + '" width="50"/></div></section>';
 		}
 	}
 
