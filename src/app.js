@@ -1,9 +1,10 @@
 // Make sure CSS is discovered by Webpack
 require('./css/style.scss');
-
 require('./tau.js');
+var ReactDOM = require('react-dom');
 import Arrow from './img/down-arrow.svg';
-import { TramIcon } from '@entur/component-library';
+import { BicycleIcon, BusIcon, FerryIcon, SubwayIcon, TrainIcon, TramIcon, PlaneIcon, COLORS } from '@entur/component-library';
+
 
 (function(tau) {
 
@@ -105,18 +106,35 @@ import { TramIcon } from '@entur/component-library';
 		}
 	}
 
+	function getIcon(type, color, size) {
+	    switch (type) {
+	        case 'bus':
+	            return BusIcon({'color': color, 'size': size})
+	        case 'bike':
+	            return BicycleIcon({'color': color, 'size': size})
+	        case 'water':
+	            return FerryIcon({'color': color, 'size': size})
+	        case 'metro':
+	            return SubwayIcon({'color': color, 'size': size})
+	        case 'rail':
+	            return TrainIcon({'color': color, 'size': size})
+	        case 'tram':
+	            return TramIcon({'color': color, 'size': size})
+	        case 'lock':
+	            return Lock({'color': color, 'size': size})
+	        case 'air':
+	            return PlaneIcon({'color': color, 'size': size})
+	        default:
+	            return null
+	    }
+	}
+
 	/**
 	 * Render a single departure by modifying the DOM directly
 	 */
 	function renderDeparture(departure) {
 		var transportMode = document.createElement("div");
-		//var transportModeIcon = document.createElement("img");
-		//transportModeIcon.className = "icon";
-		//transportModeIcon.setAttribute("src", transportModeToIcon(departure.serviceJourney.line.transportMode));
-		//transportMode.appendChild(transportModeIcon);
-		var ReactDOM = require('react-dom');
-		//tramParams['color'] = '#9BA4D2';
-		ReactDOM.render(TramIcon({'color': '#9BA4D2'}), transportMode);
+		ReactDOM.render(getIcon(departure.serviceJourney.line.transportMode, "#" + departure.serviceJourney.line.presentation.colour, 'xlarge'), transportMode);
 		var destination = document.createElement("div");
 		destination.className = "destination";
 		var line = document.createElement("span");
