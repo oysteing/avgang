@@ -74,56 +74,48 @@ import { BicycleIcon, BusIcon, FerryIcon, SubwayIcon, TrainIcon, TramIcon, Plane
 	}
 
 	/**
-	 * Map transport mode to icon name
+	 * Map transport mode to icon color
 	 */
-	function transportModeToIcon(transportMode) {
-		switch (transportMode) {
-//		case "air":
-//			return
-		case "bus":
-			return "img/bus.svg";
-//		case "cableway":
-//			return
-//		case "water":
-//			return
-//		case "funicular":
-//			return
-//		case "lift":
-//			return
-//		case "rail":
-//			return
-		case "metro":
-			return "img/t-banen.svg";
-//		case "tram":
-//			return
-//		case "coach":
-//			return
-//		case "unknown":
-//			return
-		default:
-			console.log("Sorry, we don't have an icon for transportMode " + transportMode);
-			return;
-		}
+	function getIconColor(transportMode) {
+	    switch (transportMode) {
+	    case 'bus':
+	        return COLORS.BUS;
+	    case 'bike':
+	        return COLORS.BICYCLE;
+	    case 'water':
+	        return COLORS.FERRY;
+	    case 'metro':
+	        return COLORS.METRO;
+	    case 'rail':
+	        return COLORS.TRAIN;
+	    case 'tram':
+	        return COLORS.TRAM;
+	    case 'air':
+	        return COLORS.PLANE;
+	    default:
+	        return null
+	    }
 	}
 
-	function getIcon(type, color, size) {
-	    switch (type) {
+	/**
+	 * Map transport mode to Entur icon component (React)
+	 */
+	function getIcon(transportMode, size) {
+	    switch (transportMode) {
 	        case 'bus':
-	            return BusIcon({'color': color, 'size': size})
+	            return BusIcon({'color': getIconColor(transportMode), 'size': size})
 	        case 'bike':
-	            return BicycleIcon({'color': color, 'size': size})
+	            return BicycleIcon({'color': getIconColor(transportMode), 'size': size})
 	        case 'water':
-	            return FerryIcon({'color': color, 'size': size})
+	            return FerryIcon({'color': getIconColor(transportMode), 'size': size})
 	        case 'metro':
-	            return SubwayIcon({'color': color, 'size': size})
+	            return SubwayIcon({'color': getIconColor(transportMode), 'size': size})
 	        case 'rail':
-	            return TrainIcon({'color': color, 'size': size})
+	            return TrainIcon({'color': getIconColor(transportMode), 'size': size})
 	        case 'tram':
-	            return TramIcon({'color': color, 'size': size})
-	        case 'lock':
-	            return Lock({'color': color, 'size': size})
+	            return TramIcon({'color': getIconColor(transportMode), 'size': size})
 	        case 'air':
-	            return PlaneIcon({'color': color, 'size': size})
+	            return PlaneIcon({'color': getIconColor(transportMode), 'size': size})
 	        default:
 	            return null
 	    }
@@ -134,12 +126,13 @@ import { BicycleIcon, BusIcon, FerryIcon, SubwayIcon, TrainIcon, TramIcon, Plane
 	 */
 	function renderDeparture(departure) {
 		var transportMode = document.createElement("div");
-		ReactDOM.render(getIcon(departure.serviceJourney.line.transportMode, "#" + departure.serviceJourney.line.presentation.colour, 'xlarge'), transportMode);
+		transportMode.className = 'transportMode';
+		ReactDOM.render(getIcon(departure.serviceJourney.line.transportMode, 'xlarge'), transportMode);
 		var destination = document.createElement("div");
 		destination.className = "destination";
 		var line = document.createElement("span");
 		line.className = "line";
-		line.setAttribute("style", "background-color: #" + departure.serviceJourney.line.presentation.colour);
+		line.setAttribute("style", "background-color: " + getIconColor(departure.serviceJourney.line.transportMode));
 		line.appendChild(document.createTextNode(departure.serviceJourney.line.publicCode));
 		destination.appendChild(line);
 		destination.appendChild(document.createTextNode(departure.destinationDisplay.frontText));
@@ -379,24 +372,6 @@ import { BicycleIcon, BusIcon, FerryIcon, SubwayIcon, TrainIcon, TramIcon, Plane
 			if (pageIndicator) {
 				pageIndicator.setActive(sectionChanger.getActiveSectionIndex());
 			}
-
-			/* Register section change on bezel rotation */
-			var changeSection = function(event) {
-				if (event.detail.direction === 'CW' && sectionChanger.getActiveSectionIndex() < sectionChanger.sections.length-1) {
-					// Next section
-					sectionChanger.setActiveSection(sectionChanger.getActiveSectionIndex()+1);
-				} else if (event.detail.direction === 'CCW' && sectionChanger.getActiveSectionIndex() > 0) {
-					// Previous section
-					sectionChanger.setActiveSection(sectionChanger.getActiveSectionIndex()-1);
-				}
-			};
-			
-			document.addEventListener('rotarydetent', changeSection, false);
-		    
-		    mainPage.addEventListener('pagebeforehide', function pageHideHandler() {
-				mainPage.removeEventListener('pagebeforehide', pageHideHandler, false);
-			    document.removeEventListener('rotarydetent', changeSection, false);
-			}, false);
 		}, false);
 
 		stoppestedPage.addEventListener('pagebeforeshow', function() {
