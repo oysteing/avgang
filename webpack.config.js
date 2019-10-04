@@ -1,31 +1,44 @@
+const path = require("path");
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 const copyFiles = new CopyWebpackPlugin([
 		{from: 'config.xml'},
-		{from: 'src/img/icons8-tram-side-view-96.png'}
+		{from: 'src/img/icon.png'},
+		// Support running Tizen Studio on dist/
+		{from: '.project'},
+		{from: '.tproject'}
 	]);
-
-const extractCss = new MiniCssExtractPlugin({
-	filename: 'css/[name].css'
-});
 
 const htmlWebpack = new HtmlWebpackPlugin({
 	template : 'src/index.html'
 });
 
-module.exports = {
-	entry : [ './src/app.js' ],
+const tauImagePath = path.resolve('src/css/theme/changeable/images');
 
-	module : {
-		rules : [ {
-			test : /\.(s*)css$/,
-			use : [ {
+module.exports = {
+	entry: [ './src/app.js' ],
+
+	module: {
+		rules: [ {
+			test: /\.(s*)css$/,
+			use: [ {
 				loader : MiniCssExtractPlugin.loader
 			}, 'css-loader', 'sass-loader' ]
 		}, {
-			test : /\.(png|jpe?g|svg)$/,
+			// TAU dynamically loads images relative to CSS location
+			include: tauImagePath,
+			test: /\.png$/,
+			loader: 'file-loader',
+			options: {
+				name(file) {
+					return 'img/tau/' + path.relative(tauImagePath, file);
+				}
+			}
+		}, {
+			exclude: tauImagePath,
+			test: /\.(png|jpe?g|svg)$/,
 			loader: 'file-loader',
 			options: {
 				name: 'img/[name].[ext]'
@@ -33,5 +46,5 @@ module.exports = {
 		} ]
 	},
 
-	plugins : [ copyFiles, extractCss, htmlWebpack ]
+	plugins: [ copyFiles, new MiniCssExtractPlugin(), htmlWebpack ]
 };

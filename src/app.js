@@ -1,6 +1,9 @@
-import './css/style.scss';
-import './tau.js'
-import Arrow from './img/arrow.svg';
+// Make sure CSS is discovered by Webpack
+require('./css/style.scss');
+
+require('./tau.js');
+import Arrow from './img/down-arrow.svg';
+import { TramIcon } from '@entur/component-library';
 
 (function(tau) {
 
@@ -107,10 +110,13 @@ import Arrow from './img/arrow.svg';
 	 */
 	function renderDeparture(departure) {
 		var transportMode = document.createElement("div");
-		var transportModeIcon = document.createElement("img");
-		transportModeIcon.className = "icon";
-		transportModeIcon.setAttribute("src", transportModeToIcon(departure.serviceJourney.line.transportMode));
-		transportMode.appendChild(transportModeIcon);
+		//var transportModeIcon = document.createElement("img");
+		//transportModeIcon.className = "icon";
+		//transportModeIcon.setAttribute("src", transportModeToIcon(departure.serviceJourney.line.transportMode));
+		//transportMode.appendChild(transportModeIcon);
+		var ReactDOM = require('react-dom');
+		//tramParams['color'] = '#9BA4D2';
+		ReactDOM.render(TramIcon({'color': '#9BA4D2'}), transportMode);
 		var destination = document.createElement("div");
 		destination.className = "destination";
 		var line = document.createElement("span");

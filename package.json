@@ -31,15 +31,17 @@
     "webpack-cli": "^3.3.9"
   },
   "dependencies": {
-    "@entur/sdk": "^0.10.7"
+    "@entur/component-library": "^0.27.0",
+    "@entur/sdk": "^0.10.7",
+    "react": "^16.10.2",
+    "react-dom": "^16.10.2"
   },
   "scripts": {
-    "clean": "rm -r dist",
+    "clean": "rm -rf dist",
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "webpack",
     "build:dev": "webpack --mode development",
     "package": "tizen package -t wgt -- dist/",
-    "deploy": "tizen install --name dist/Avgang.wgt && tizen run -p zZJRnGeh3I",
-    "debug": "google-chrome --app=http://127.0.0.1:41785/devtools/inspector.html?ws=127.0.0.1:41785/devtools/page/939792C2-48EA-487A-9608-D648CD17C5CB"
+    "deploy": "tizen install --name dist/Avgang.wgt && tizen run -p zZJRnGeh3I"
   }
 }
