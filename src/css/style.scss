@@ -1,0 +1,25 @@
+@import 'theme/default/tau.css';
+@import 'theme/default/tau.circle.css';
+
+
+#main .ui-header {
+	height: 5rem;
+}
+
+#content .transportMode {
+	height: 48px;
+}
+
+#content span.line {
+	display: inline-block;
+	color: black;
+	width: 60px;
+	font-size: 28px;
+	line-height: normal;
+	margin-right: 5px;
+}
+
+#content div.departure-time {
+	color: #ff9000;
+	margin-top: 10px;
+}
