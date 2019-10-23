@@ -30,4 +30,4 @@ Open dist/ in Tizen Studio to debug. Note that you may have to `npm run clean` f
 ## Credits
 
 Big thanks to JetBrains (https://www.jetbrains.com/?from=Avgang) for supporting the project with WebStorm licenses!
-![JetBrains](https://github.com/oysteing/avgang/raw/master/src/img/jetbrains.svg)
+![JetBrains](https://github.com/oysteing/avgang/raw/master/src/img/jetbrains.svg?sanitize=true)
