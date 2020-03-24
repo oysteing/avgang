@@ -18,10 +18,16 @@ const htmlWebpack = new HtmlWebpackPlugin({
 const tauImagePath = path.resolve('src/css/theme/changeable/images');
 
 module.exports = {
-	entry: [ './src/app.js' ],
+	entry: [ './src/app.ts' ],
+
+	resolve: {
+        extensions: ['.ts', '.tsx', '.js']
+    },
 
 	module: {
-		rules: [ {
+		rules: [
+		{test: /\.tsx?$/, loader: 'ts-loader', exclude: '/node-modules'},
+		{
 			test: /\.(s*)css$/,
 			use: [ {
 				loader : MiniCssExtractPlugin.loader
