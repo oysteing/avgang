@@ -4,53 +4,53 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 const copyFiles = new CopyWebpackPlugin([
-		{from: 'config.xml'},
-		{from: 'src/img/icon.png'},
-		// Support running Tizen Studio on dist/
-		{from: '.project'},
-		{from: '.tproject'}
-	]);
+    {from: 'config.xml'},
+    {from: 'src/img/icon.png'},
+    // Support running Tizen Studio on dist/
+    {from: '.project'},
+    {from: '.tproject'}
+]);
 
 const htmlWebpack = new HtmlWebpackPlugin({
-	template : 'src/index.html'
+    template: 'src/index.html'
 });
 
 const tauImagePath = path.resolve('src/css/theme/changeable/images');
 
 module.exports = {
-	entry: [ './src/app.ts' ],
+    entry: ['./src/app.ts'],
 
-	resolve: {
+    resolve: {
         extensions: ['.ts', '.tsx', '.js']
     },
 
-	module: {
-		rules: [
-		{test: /\.tsx?$/, loader: 'ts-loader', exclude: '/node-modules'},
-		{
-			test: /\.(s*)css$/,
-			use: [ {
-				loader : MiniCssExtractPlugin.loader
-			}, 'css-loader', 'sass-loader' ]
-		}, {
-			// TAU dynamically loads images relative to CSS location
-			include: tauImagePath,
-			test: /\.png$/,
-			loader: 'file-loader',
-			options: {
-				name(file) {
-					return 'img/tau/' + path.relative(tauImagePath, file);
-				}
-			}
-		}, {
-			exclude: tauImagePath,
-			test: /\.(png|jpe?g|svg)$/,
-			loader: 'file-loader',
-			options: {
-				name: 'img/[name].[ext]'
-			}
-		} ]
-	},
+    module: {
+        rules: [
+            {test: /\.tsx?$/, loader: 'ts-loader', exclude: '/node-modules'},
+            {
+                test: /\.(s*)css$/,
+                use: [{
+                    loader: MiniCssExtractPlugin.loader
+                }, 'css-loader', 'sass-loader']
+            }, {
+                // TAU dynamically loads images relative to CSS location
+                include: tauImagePath,
+                test: /\.png$/,
+                loader: 'file-loader',
+                options: {
+                    name(file) {
+                        return 'img/tau/' + path.relative(tauImagePath, file);
+                    }
+                }
+            }, {
+                exclude: tauImagePath,
+                test: /\.(png|jpe?g|svg)$/,
+                loader: 'file-loader',
+                options: {
+                    name: 'img/[name].[ext]'
+                }
+            }]
+    },
 
-	plugins: [ copyFiles, new MiniCssExtractPlugin(), htmlWebpack ]
+    plugins: [copyFiles, new MiniCssExtractPlugin(), htmlWebpack]
 };
