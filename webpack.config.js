@@ -18,6 +18,8 @@ const htmlWebpack = new HtmlWebpackPlugin({
 const tauImagePath = path.resolve('src/css/theme/changeable/images');
 
 module.exports = {
+    mode: "development",
+
     entry: ['./src/app.ts'],
 
     resolve: {
@@ -26,7 +28,18 @@ module.exports = {
 
     module: {
         rules: [
-            {test: /\.tsx?$/, loader: 'ts-loader', exclude: '/node-modules'},
+            {
+                test: /\.(tsx?|js)$/, //
+                exclude: [/\/tau\.js/],
+                loader: 'babel-loader',
+                options: {
+                    presets: [
+                        ["@babel/preset-env", {"targets": {"chrome": 45}}],
+                        ["@babel/preset-typescript"]
+                    ],
+                    plugins: ["transform-class-properties"]
+                }
+            },
             {
                 test: /\.(s*)css$/,
                 use: [{
@@ -52,5 +65,7 @@ module.exports = {
             }]
     },
 
-    plugins: [copyFiles, new MiniCssExtractPlugin(), htmlWebpack]
+    plugins: [copyFiles, new MiniCssExtractPlugin(), htmlWebpack],
+
+    devtool: 'eval-source-map'
 };

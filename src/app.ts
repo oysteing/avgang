@@ -2,10 +2,9 @@ import { Stops } from './stops';
 
 declare var tizen: any;
 
-const arrowSrc = require('./img/down-arrow.svg');
-
 require('./css/style.scss');
 require('./tau.js');
+require('./img/down-arrow.svg');
 
 class AvgangApp {
 
@@ -13,7 +12,6 @@ class AvgangApp {
 
     init() {
         this.registerEvents();
-        this.loadImages();
     }
 
     /**
@@ -76,12 +74,6 @@ class AvgangApp {
 			}, false);
 		}, false); */
 	}
-
-    private loadImages() {
-        const arrow = document.getElementById("arrow") as HTMLImageElement;
-        arrow.src = arrowSrc;
-        arrow.width = 50;
-    }
 }
 
 window.onload = () => {

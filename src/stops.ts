@@ -1,5 +1,3 @@
-import EnturService from '@entur/sdk';
-
 export class Stops {
 
     page = document.getElementById('stoppested');
@@ -12,7 +10,6 @@ export class Stops {
 
     private loadPage() {
         let contentRoot = document.getElementById('stoppesteder');
-        let enturService = new EnturService({clientName: 'øystein_gisnås - avgang'});
 
         navigator.geolocation.getCurrentPosition(
             (position: Position) => getClosestStops(position),
@@ -29,8 +26,8 @@ export class Stops {
         */
         function getClosestStops(position: Position) {
             console.log("Position: " + position);
-            let result = enturService.getStopPlacesByPosition(position.coords);
-            console.log("Stoppesteder: " + result);
+            //let result = enturService.getStopPlacesByPosition(position.coords);
+            //console.log("Stoppesteder: " + result);
             /*findStops(position)
                 .then(handleFetchErrors)
                 .then(data => console.log(JSON.stringify(data)))
