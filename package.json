@@ -52,6 +52,6 @@
     "build:dev": "webpack --mode development",
     "package": "tizen package -t wgt -- dist/",
     "deploy": "tizen install --name dist/Avgang.wgt && tizen run -p zZJRnGeh3I",
-    "start-emulator": "/home/ogisnas/tizen-studio/tools/emulator/bin/em-cli launch -n w-0303-1"
+    "start-emulator": "/home/ogisnas/tizen-studio/tools/emulator/bin/em-cli launch -n wearable-4"
   }
 }
