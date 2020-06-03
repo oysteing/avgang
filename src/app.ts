@@ -3,7 +3,7 @@ import { Stops } from './stops';
 declare var tizen: any;
 
 require('./css/style.scss');
-require('./tau.js');
+require('../lib/tau/wearable/js/tau.js');
 require('./img/down-arrow.svg');
 
 class AvgangApp {
