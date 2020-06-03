@@ -1,4 +1,8 @@
 import createEnturApi from './entur-api';
+import {Feature} from "./entur-feature";
+
+const clientName = 'ØysteinGisnås-Avgang';
+const enturApi = createEnturApi(clientName);
 
 export class Stops {
 
@@ -11,7 +15,7 @@ export class Stops {
     }
 
     private loadPage() {
-        let contentRoot = document.getElementById('stoppesteder');
+        let contentRoot = document.getElementById('stoppesteder')!;
 
         navigator.geolocation.getCurrentPosition(
             (position: Position) => getClosestStops(position),
@@ -20,37 +24,26 @@ export class Stops {
             }
         );
 
-        /*
-                async function findStops(position: Position) {
-                    const response = await fetch(`https://api.entur.io/geocoder/v1/reverse2?layers=venue&point.lat=${position.coords.latitude}&point.lon=${position.coords.longitude}`);
-                    return await response.json();
-                }
-        */
-        function getClosestStops(position: Position) {
-            console.log("Position: " + position);
-            let enturApi = createEnturApi();
-            let result = enturApi.getStopPlacesByPosition(position.coords);
-            console.log("Stoppesteder: " + result);
-            /*findStops(position)
-                .then(handleFetchErrors)
-                .then(data => console.log(JSON.stringify(data)))
-                .catch(error => displayError('Nettverksfeil', error));*/
+        async function getClosestStops(position: Position) {
+            enturApi.getStopPlacesByPosition(position.coords, {layers: ['venue']})
+                .then(features => {
+                    if (features.length == 0) {
+                        renderMessage('Ingen stoppesteder i nærheten');
+                    } else {
+                        renderStops(features);
+                    }
+                })
+                .catch(reason => {
+                    renderMessage('Nettverksfeil');
+                });
         }
 
-        /*
-                function handleFetchErrors(response) {
-                    if (!response.ok) {
-                        console.log("Da var vi her da " + response.error);
-                        throw Error(response.error);
-                    }
-                    return response;
-                }
+        function renderStops(features: Feature[]) {
+            contentRoot.innerHTML = features.map(value => value.properties.name).join('<br>');
+        }
 
-                function displayError(userMessage: string, error: Error) {
-                    console.error(userMessage + ": " + error);
-                    // @ts-ignore
-                    contentRoot.innerHTML = userMessage;
-                }
-        */
+        function renderMessage(message: string) {
+            contentRoot.innerHTML = message;
+        }
     }
 }

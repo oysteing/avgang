@@ -28,7 +28,7 @@ module.exports = {
 
     module: {
         rules: [
-            {
+/*            {
                 test: /\.(tsx?|js)$/, //
                 exclude: [/\/tau\.js/],
                 loader: 'babel-loader',
@@ -37,10 +37,14 @@ module.exports = {
                         ["@babel/preset-env", {"targets": {"chrome": 45}}],
                         ["@babel/preset-typescript"]
                     ],
-                    plugins: ["@babel/proposal-class-properties"]
+                    plugins: ["@babel/proposal-class-properties", "@babel/plugin-transform-runtime"]
                 }
-            },
+            },*/
             {
+                test: /\.(tsx?)$/, //
+                use: 'ts-loader',
+                exclude: '/node_modules',
+            },           {
                 test: /\.(s*)css$/,
                 use: [{
                     loader: MiniCssExtractPlugin.loader
