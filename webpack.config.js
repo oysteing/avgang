@@ -37,7 +37,7 @@ module.exports = {
                         ["@babel/preset-env", {"targets": {"chrome": 45}}],
                         ["@babel/preset-typescript"]
                     ],
-                    plugins: ["transform-class-properties"]
+                    plugins: ["@babel/proposal-class-properties"]
                 }
             },
             {

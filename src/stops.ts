@@ -1,3 +1,5 @@
+import createEnturApi from './entur-api';
+
 export class Stops {
 
     page = document.getElementById('stoppested');
@@ -26,8 +28,9 @@ export class Stops {
         */
         function getClosestStops(position: Position) {
             console.log("Position: " + position);
-            //let result = enturService.getStopPlacesByPosition(position.coords);
-            //console.log("Stoppesteder: " + result);
+            let enturApi = createEnturApi();
+            let result = enturApi.getStopPlacesByPosition(position.coords);
+            console.log("Stoppesteder: " + result);
             /*findStops(position)
                 .then(handleFetchErrors)
                 .then(data => console.log(JSON.stringify(data)))
