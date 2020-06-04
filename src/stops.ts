@@ -1,5 +1,5 @@
 import createEnturApi from './entur-api';
-import {Feature} from "./entur-feature";
+import {Feature} from './entur-feature';
 
 const clientName = 'ØysteinGisnås-Avgang';
 const enturApi = createEnturApi(clientName);
@@ -15,12 +15,15 @@ export class Stops {
     }
 
     private loadPage() {
-        let contentRoot = document.getElementById('stoppesteder')!;
+        const contentRoot = document.getElementById('stoppesteder');
+        if (contentRoot === undefined) {
+            return;
+        }
 
         navigator.geolocation.getCurrentPosition(
             (position) => getClosestStops(position),
             positionError => {
-                console.log("Position error: " + positionError.code + ", " + positionError.message);
+                console.log('Position error: ' + positionError.code + ', ' + positionError.message);
                 renderMessage('Fant ikke posisjon', positionError.message, true);
             }
         );
@@ -28,7 +31,7 @@ export class Stops {
         function getClosestStops(position: Position) {
             enturApi.getStopPlacesByPosition(position.coords, {layers: ['venue']})
                 .then(features => {
-                    if (features.length == 0) {
+                    if (features.length === 0) {
                         renderMessage('Ingen stoppesteder i nærheten');
                     } else {
                         renderStops(features);
@@ -40,17 +43,22 @@ export class Stops {
         }
 
         function renderStops(features: Feature[]) {
+            // @ts-ignore
             contentRoot.innerHTML = features.map(value => value.properties.name).join('<br>');
         }
 
         function renderMessage(message: string, detailMessage?: string, fakeLocation?: boolean) {
+            // @ts-ignore
             contentRoot.innerHTML = message;
             if (detailMessage) {
+                // @ts-ignore
                 contentRoot.innerHTML += '<br>' + detailMessage;
             }
             if (fakeLocation) {
+                // @ts-ignore
                 contentRoot.innerHTML += '<br><a href="#main">(velg Jernbanetorget)</a>';
-                contentRoot.addEventListener("click", selectJernbanetorget, {once: true});
+                // @ts-ignore
+                contentRoot.addEventListener('click', selectJernbanetorget, {once: true});
             }
         }
 

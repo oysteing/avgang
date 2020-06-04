@@ -18,7 +18,7 @@ export type Category =
     | 'Vegadresse'
     | 'street'
     | 'tettsteddel'
-    | 'bydel'
+    | 'bydel';
 
 export type Feature = {
     geometry: {
@@ -46,4 +46,4 @@ export type Feature = {
         source_id: string
         street: string
     }
-}
+};

@@ -17,16 +17,16 @@ describe('Entur API', () => {
    jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
 
    it('reverse geocoding should succeed', () => {
-      let enturApi = createEnturApi(clientName);
+      const enturApi = createEnturApi(clientName);
 
-      return enturApi.getStopPlacesByPosition(coordinates).then(function (result) {
+      return enturApi.getStopPlacesByPosition(coordinates).then((result) => {
          expect(result.length).toEqual(10);
          expect(result[0].properties.name).toEqual('Oslo bussterminal');
       });
    });
 
    it('should handle errors', async () => {
-      let enturApi = createEnturApi(clientName);
+      const enturApi = createEnturApi(clientName);
 
       const erroneousCoordinates = {latitude: 'to', longitude: 5};
 

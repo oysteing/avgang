@@ -1,11 +1,11 @@
-import {Feature} from "./entur-feature";
+import {Feature} from './entur-feature';
 
 const querystring = require('querystring');
 
 function createEnturApi(clientName) {
     return {
         getStopPlacesByPosition: createGetStopPlacesByPosition(clientName),
-    }
+    };
 }
 
 function responseHandler(response: Response) {
@@ -19,7 +19,7 @@ type GetStopPlacesByPositionParam = {
     radius?: number
     size?: number
     layers?: Array<string>
-}
+};
 
 function createGetStopPlacesByPosition(clientName: string) {
     const headers = { 'ET-Client-Name': clientName };
@@ -28,7 +28,7 @@ function createGetStopPlacesByPosition(clientName: string) {
         coordinates: Coordinates,
         params: GetStopPlacesByPositionParam = {},
     ): Promise<Feature[]> {
-        let url = new URL('https://api.entur.io/geocoder/v1/reverse');
+        const url = new URL('https://api.entur.io/geocoder/v1/reverse');
         const searchParams = {
             'point.lat': coordinates.latitude,
             'point.lon': coordinates.longitude,
@@ -43,7 +43,7 @@ function createGetStopPlacesByPosition(clientName: string) {
             headers
             ).then(responseHandler)
             .then((data) => data.features || []);
-    }
+    };
 }
 
 function get(
@@ -52,7 +52,7 @@ function get(
     headers?,
 ) {
     const qs = querystring.stringify(params);
-    return fetch(url + '?' + qs, {headers: headers});
+    return fetch(url + '?' + qs, {headers});
 }
 
-export default createEnturApi
+export default createEnturApi;
