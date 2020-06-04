@@ -39,12 +39,14 @@ module.exports = {
                     ],
                     plugins: ["@babel/proposal-class-properties", "@babel/plugin-transform-runtime"]
                 }
-            },*/
+            },
+*/
             {
                 test: /\.(tsx?)$/, //
                 use: 'ts-loader',
-                exclude: '/node_modules',
-            },           {
+                exclude: '/node_modules/',
+            },
+            {
                 test: /\.(s*)css$/,
                 use: [{
                     loader: MiniCssExtractPlugin.loader

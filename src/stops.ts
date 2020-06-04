@@ -18,13 +18,15 @@ export class Stops {
         let contentRoot = document.getElementById('stoppesteder')!;
 
         navigator.geolocation.getCurrentPosition(
-            (position: Position) => getClosestStops(position),
+            (position) => getClosestStops(position),
             positionError => {
-                console.log("Error: " + positionError);
-            }
+                console.log("Position error: " + positionError.code + ", " + positionError.message);
+                renderMessage('Fant ikke posisjon', positionError.message, true);
+            },
+            {timeout: 30000}
         );
 
-        async function getClosestStops(position: Position) {
+        function getClosestStops(position: Position) {
             enturApi.getStopPlacesByPosition(position.coords, {layers: ['venue']})
                 .then(features => {
                     if (features.length == 0) {
@@ -42,8 +44,19 @@ export class Stops {
             contentRoot.innerHTML = features.map(value => value.properties.name).join('<br>');
         }
 
-        function renderMessage(message: string) {
+        function renderMessage(message: string, detailMessage?: string, fakeLocation?: boolean) {
             contentRoot.innerHTML = message;
+            if (detailMessage) {
+                contentRoot.innerHTML += '<br>' + detailMessage;
+            }
+            if (fakeLocation) {
+                contentRoot.innerHTML += '<br><a href="#main">(velg Jernbanetorget)</a>';
+                contentRoot.addEventListener("click", selectJernbanetorget, {once: true});
+            }
+        }
+
+        function selectJernbanetorget() {
+            console.log('Jernbanetorget');
         }
     }
 }
