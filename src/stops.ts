@@ -22,8 +22,7 @@ export class Stops {
             positionError => {
                 console.log("Position error: " + positionError.code + ", " + positionError.message);
                 renderMessage('Fant ikke posisjon', positionError.message, true);
-            },
-            {timeout: 30000}
+            }
         );
 
         function getClosestStops(position: Position) {

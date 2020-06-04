@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <widget xmlns:tizen="http://tizen.org/ns/widgets" xmlns="http://www.w3.org/ns/widgets" id="http://gisnas.net/Avgang" version="2.1.0" viewmodes="maximized">
     <access origin="*" subdomains="true"/>
-    <tizen:application id="zZJRnGeh3I.Avgangstider" package="zZJRnGeh3I" required_version="4.0"/>
+    <tizen:application id="zZJRnGeh3I.Avgangstider" package="zZJRnGeh3I" required_version="3.0"/>
     <author email="oystein@gisnas.net">Øystein Gisnås</author>
     <content src="index.html"/>
     <feature name="http://tizen.org/feature/screen.size.normal"/>
@@ -9,7 +9,6 @@
     <name>Avgang</name>
     <tizen:privilege name="http://tizen.org/privilege/location"/>
     <tizen:privilege name="http://tizen.org/privilege/internet"/>
-    <tizen:privilege name="http://tizen.org/privilege/application.launch"/>
     <tizen:profile name="wearable"/>
     <tizen:setting hwkey-event="enable"/>
 </widget>
