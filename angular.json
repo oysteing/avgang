@@ -12,16 +12,67 @@
       },
       "root": "",
       "architect": {
-        "lint": {
-          "builder": "@angular-devkit/build-angular:tslint",
+        "build": {
+          "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "tsConfig": [
-              "tsconfig.json"
+            "outputPath": "dist",
+            "index": "src/index.html",
+            "main": "src/app.ts",
+            "polyfills": "src/polyfills.ts",
+            "tsConfig": "tsconfig.json",
+            "aot": true,
+            "styles": [
+              "src/css/styles.scss"
             ],
-            "exclude": [
-              "**/node_modules/**"
+            "assets": [
+              "src/img/down-arrow.svg",
+              "src/assets",
+              "src/img/icon.png",
+              {
+                "glob": "+(config.xml|.project|.tproject)",
+                "input": "",
+                "output": ""
+              },
+              {
+                "glob": "**/*",
+                "input": "lib/tau",
+                "output": "lib/tau"
+              }
             ]
+          },
+          "configurations": {
+            "production": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.prod.ts"
+                }
+              ],
+              "optimization": true,
+              "outputHashing": "all",
+              "sourceMap": false,
+              "extractCss": true,
+              "namedChunks": false,
+              "extractLicenses": true,
+              "vendorChunk": false,
+              "buildOptimizer": true,
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "2mb",
+                  "maximumError": "5mb"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "6kb",
+                  "maximumError": "10kb"
+                }
+              ]
+            }
           }
+        },
+        "lint": {
+          "builder": "@angular-devkit/build-angular:tslint"
         }
       }
     }

@@ -2,10 +2,6 @@ import {Stops} from './stops';
 
 declare var tizen: any;
 
-require('./css/style.scss');
-require('../lib/tau/wearable/js/tau.js');
-require('./img/down-arrow.svg');
-
 class AvgangApp {
 
     stops = new Stops();

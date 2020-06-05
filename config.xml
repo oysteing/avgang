@@ -5,7 +5,7 @@
     <author email="oystein@gisnas.net">Øystein Gisnås</author>
     <content src="index.html"/>
     <feature name="http://tizen.org/feature/screen.size.normal"/>
-    <icon src="icon.png"/>
+    <icon src="img/icon.png"/>
     <name>Avgang</name>
     <tizen:privilege name="http://tizen.org/privilege/location"/>
     <tizen:privilege name="http://tizen.org/privilege/internet"/>

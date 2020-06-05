@@ -1,6 +1,5 @@
 import {Feature} from './entur-feature';
-
-const querystring = require('querystring');
+const querystring = require("querystring");
 
 function createEnturApi(clientName) {
     return {
