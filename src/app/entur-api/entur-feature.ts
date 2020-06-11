@@ -48,6 +48,12 @@ export type Feature = {
     }
 };
 
+export type StopPlaceDepartures = {
+    id: string
+    name: string
+    estimatedCalls: EstimatedCall[]
+};
+
 export type EstimatedCall = {
     expectedDepartureTime: string
     destinationDisplay: {

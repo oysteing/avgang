@@ -35,8 +35,9 @@ describe('Entur API', () => {
 
     it('getStopPlace should return departures', () => {
         return enturApi.getStopPlace(stopPlace).then((result) => {
-            expect(result.length).toEqual(5);
-            expect(result[0].serviceJourney.journeyPattern.line.transportMode).toEqual('rail');
+            console.log(result);
+            expect(result.estimatedCalls.length).toEqual(5);
+            expect(result.estimatedCalls[0].serviceJourney.journeyPattern.line.transportMode).toEqual('rail');
         });
     });
 });

@@ -1,6 +1,7 @@
 import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute} from "@angular/router";
 import createEnturApi, {clientName} from "../entur-api/entur-api";
+import {EstimatedCall, StopPlaceDepartures} from "../entur-api/entur-feature";
 
 const enturApi = createEnturApi(clientName);
 
@@ -11,14 +12,15 @@ const enturApi = createEnturApi(clientName);
 })
 export class DeparturesComponent implements OnInit {
 
+  departures: StopPlaceDepartures | undefined;
+
   constructor(private route: ActivatedRoute) {
   }
 
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
-      console.log('Fetch stop', params.stopId);
       enturApi.getStopPlace(params.stopId).then(value => {
-        console.log('Stop place fetched', value);
+        this.departures = value;
       });
     });
   }

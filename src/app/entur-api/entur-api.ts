@@ -1,4 +1,4 @@
-import {EstimatedCall, Feature} from './entur-feature';
+import {EstimatedCall, Feature, StopPlaceDepartures} from './entur-feature';
 import {rejects} from "assert";
 const querystring = require('querystring');
 
@@ -103,7 +103,7 @@ function createGetDepartures(clientName: string) {
 
     return function getDepartures(
         stopPlaceId: string
-    ): Promise<Array<EstimatedCall>> {
+    ): Promise<StopPlaceDepartures> {
         const url = 'https://api.entur.io/journey-planner/v2/graphql';
 
         const query = createGraphqlQuery(getDeparturesFromStopPlacesQuery, {stopPlaceId});
@@ -113,7 +113,7 @@ function createGetDepartures(clientName: string) {
                 if (response.data.stopPlace.id !== stopPlaceId) {
                     throw Error('Queried stop place not found in response');
                 }
-                return response.data.stopPlace.estimatedCalls;
+                return response.data.stopPlace;
             });
     }
 }
