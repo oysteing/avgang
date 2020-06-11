@@ -35,8 +35,12 @@
     "webpack-cli": "^3.3.11"
   },
   "dependencies": {
+    "@angular/common": "^9.1.9",
     "@angular/compiler": "^9.1.9",
     "@angular/core": "^9.1.9",
+    "@angular/platform-browser": "^9.1.9",
+    "@angular/platform-browser-dynamic": "^9.1.9",
+    "@angular/router": "^9.1.9",
     "rxjs": "^6.5.5",
     "zone.js": "^0.10.3"
   },
@@ -44,9 +48,9 @@
     "clean": "rm -rf dist",
     "test": "jasmine-ts --config=jasmine.json",
     "build": "ng build",
+    "build:live": "ng build --watch",
     "package": "tizen package -t wgt -- dist/",
     "deploy": "tizen install --name dist/Avgang.wgt && tizen run -p zZJRnGeh3I",
-    "start": "npm run build && npm run package && npm run deploy",
     "lint": "ng lint"
   }
 }

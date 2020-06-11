@@ -1,10 +1,39 @@
 import {Feature} from './entur-feature';
-const querystring = require("querystring");
+const querystring = require('querystring');
 
+const DEFAULT_HEADERS = {
+    Accept: 'application/json',
+    'Content-Type': 'application/json'
+};
+
+export const clientName = 'ØysteinGisnås-Avgang';
 function createEnturApi(clientName) {
     return {
         getStopPlacesByPosition: createGetStopPlacesByPosition(clientName),
+        getStopPlace: createGetStopPlace(clientName)
     };
+}
+
+function get(
+    url: URL,
+    params?,
+    headers?,
+) {
+    const qs = querystring.stringify(params);
+    return fetch(url + '?' + qs, {method: 'get', headers});
+}
+
+function post(
+    url: string,
+    params,
+    headers?,
+) {
+    return fetch(url,
+        {
+            method: 'post',
+            headers,
+            body: JSON.stringify(params)
+        });
 }
 
 function responseHandler(response: Response) {
@@ -45,13 +74,27 @@ function createGetStopPlacesByPosition(clientName: string) {
     };
 }
 
-function get(
-    url: URL,
-    params?,
-    headers?,
-) {
-    const qs = querystring.stringify(params);
-    return fetch(url + '?' + qs, {headers});
+function createGetStopPlace(clientName: string) {
+    const headers = { ...DEFAULT_HEADERS, 'ET-Client-Name': clientName };
+
+    return function getStopPlace(
+        stopPlaceId: string
+    ): Promise<string> {
+        const url = 'https://api.entur.io/journey-planner/v2/graphql';
+
+        return post(url, getDeparturesFromStopPlacesQuery, headers)
+            .then(responseHandler);
+    }
 }
+
+const getDeparturesFromStopPlacesQuery = `
+{query:
+"{
+  stopPlace(id: "NSR:StopPlace:548") {
+    id
+  }
+}",
+variables:null}
+`
 
 export default createEnturApi;

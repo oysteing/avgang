@@ -5,40 +5,10 @@
 	<title>Avgang</title>
 	<link rel="stylesheet" href="lib/tau/wearable/theme/changeable/tau.min.css">
 	<link rel="stylesheet" media="all and (-tizen-geometric-shape: circle)" href="lib/tau/wearable/theme/changeable/tau.circle.min.css">
+	<base href="/">
 </head>
 <body>
-	<div class="ui-page ui-page-active" id="main" data-enable-page-scroll="false">
-		<div id="pageIndicator" class="ui-page-indicator"></div>
-		<header class="ui-header">
-			<h2 class="ui-title" id="stopp">Avgang</h2>
-		</header>
-		<div class="ui-content content-padding" id="content">
-			<!-- section changer has only one child. -->
-			<div id="sections">
-				<section>
-					<div>
-						<span style="font-size: smaller">Vis sanntidsavganger ved å velge stoppested i nærheten</span>
-					</div>
-					<div>
-						<img id="arrow" width="50" src="img/down-arrow.svg"/>
-					</div>
-				</section>'
-			</div>
-		</div>
-		<footer class="ui-footer ui-bottom-button">
-		   <a href="#stoppested" class="ui-btn" id="VelgStoppested">Velg stoppested</a>
-		</footer>
-		<div id="popup" class="ui-popup ui-popup-toast">
-			<div class="ui-popup-content" id="message">[Melding]</div>
-		</div>
-	</div>
-	<div class="ui-page" id="stoppested">
-		<header class="ui-header">
-			<h2 class="ui-title">Stoppested</h2>
-		</header>
-		<div class="ui-content content-padding" id="stoppesteder">Venter på posisjon..
-		</div>
-	</div>
-	<script src="lib/tau/wearable/js/tau.min.js"></script>
+	<app-root></app-root>
+	<script src="lib/tau/wearable/js/tau.js"></script>
 </body>
 </html>
