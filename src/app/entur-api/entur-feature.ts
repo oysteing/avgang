@@ -47,3 +47,34 @@ export type Feature = {
         street: string
     }
 };
+
+export type EstimatedCall = {
+    expectedDepartureTime: string
+    destinationDisplay: {
+        frontText: string
+    }
+    serviceJourney: {
+        journeyPattern: {
+            line: {
+                id: string
+                name: string
+                transportMode: TransportMode
+            }
+        }
+    }
+    forBoarding: boolean
+    realtime: boolean
+};
+
+export type TransportMode =
+    | 'air'
+    | 'bus'
+    | 'cableway'
+    | 'coach'
+    | 'funicular'
+    | 'lift'
+    | 'metro'
+    | 'rail'
+    | 'tram'
+    | 'unknown'
+    | 'water';

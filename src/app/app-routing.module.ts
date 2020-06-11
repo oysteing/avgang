@@ -6,6 +6,12 @@ import {StopsComponent} from "./stops/stops.component";
 
 const routes: Routes = [
         {
+                // TODO figure out why the initial path sometimes is different
+                path: 'opt/usr/globalapps/zZJRnGeh3I/res/wgt',
+                pathMatch: 'full',
+                redirectTo: '/intro'
+        },
+        {
                 path: '',
                 pathMatch: 'full',
                 redirectTo: '/intro'

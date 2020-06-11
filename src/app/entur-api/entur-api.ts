@@ -1,4 +1,5 @@
-import {Feature} from './entur-feature';
+import {EstimatedCall, Feature} from './entur-feature';
+import {rejects} from "assert";
 const querystring = require('querystring');
 
 const DEFAULT_HEADERS = {
@@ -10,7 +11,7 @@ export const clientName = 'ØysteinGisnås-Avgang';
 function createEnturApi(clientName) {
     return {
         getStopPlacesByPosition: createGetStopPlacesByPosition(clientName),
-        getStopPlace: createGetStopPlace(clientName)
+        getStopPlace: createGetDepartures(clientName)
     };
 }
 
@@ -20,10 +21,11 @@ function get(
     headers?,
 ) {
     const qs = querystring.stringify(params);
-    return fetch(url + '?' + qs, {method: 'get', headers});
+    return fetch(url + '?' + qs, {method: 'get', headers})
+        .then(responseHandler);
 }
 
-function post(
+function post<T>(
     url: string,
     params,
     headers?,
@@ -33,7 +35,8 @@ function post(
             method: 'post',
             headers,
             body: JSON.stringify(params)
-        });
+        })
+        .then(responseHandler);
 }
 
 function responseHandler(response: Response) {
@@ -41,6 +44,28 @@ function responseHandler(response: Response) {
         throw Error(response.statusText);
     }
     return response.json();
+}
+
+function graphqlErrorHandler(response: any) {
+    if (response?.errors?.length > 0) {
+        throw Error(`GraphQL ${response.errors[0].errorType}: ${response.errors[0].message}`);
+    }
+    if (!response.data) {
+        throw Error('Entur GraphQL query: no data returned');
+    }
+    return response;
+}
+
+function createGraphqlQuery(query: string, variables: {[key: string]: any}):
+    {
+        query: string,
+        variables?: {[key: string]: any}
+    }
+    {
+    return {
+        query: query,
+        variables
+    }
 }
 
 type GetStopPlacesByPositionParam = {
@@ -69,32 +94,55 @@ function createGetStopPlacesByPosition(clientName: string) {
             url,
             searchParams,
             headers
-            ).then(responseHandler)
-            .then((data) => data.features || []);
+            ).then((data) => data.features || []);
     };
 }
 
-function createGetStopPlace(clientName: string) {
+function createGetDepartures(clientName: string) {
     const headers = { ...DEFAULT_HEADERS, 'ET-Client-Name': clientName };
 
-    return function getStopPlace(
+    return function getDepartures(
         stopPlaceId: string
-    ): Promise<string> {
+    ): Promise<Array<EstimatedCall>> {
         const url = 'https://api.entur.io/journey-planner/v2/graphql';
 
-        return post(url, getDeparturesFromStopPlacesQuery, headers)
-            .then(responseHandler);
+        const query = createGraphqlQuery(getDeparturesFromStopPlacesQuery, {stopPlaceId});
+        return post(url, query, headers)
+            .then(graphqlErrorHandler)
+            .then(response => {
+                if (response.data.stopPlace.id !== stopPlaceId) {
+                    throw Error('Queried stop place not found in response');
+                }
+                return response.data.stopPlace.estimatedCalls;
+            });
     }
 }
 
 const getDeparturesFromStopPlacesQuery = `
-{query:
-"{
-  stopPlace(id: "NSR:StopPlace:548") {
+query($stopPlaceId: String!)
+{
+  stopPlace(id: $stopPlaceId) {
     id
+    name
+    estimatedCalls {
+      realtime
+      expectedDepartureTime
+      forBoarding
+      destinationDisplay {
+        frontText
+      }
+      serviceJourney {
+        journeyPattern {
+          line {
+            id
+            name
+            transportMode
+          }
+        }
+      }
+    }
   }
-}",
-variables:null}
+}
 `
 
 export default createEnturApi;
