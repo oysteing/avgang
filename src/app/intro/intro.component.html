@@ -1,0 +1,25 @@
+<div class="ui-page ui-page-active" id="intro" data-enable-page-scroll="false">
+    <div id="pageIndicator" class="ui-page-indicator"></div>
+    <header class="ui-header">
+        <h2 class="ui-title" id="stopp">Avgang</h2>
+    </header>
+    <div class="ui-content content-padding" id="content">
+        <!-- section changer has only one child. -->
+        <div id="sections">
+            <section>
+                <div>
+                    <span style="font-size: smaller">Velg stoppested og vis sannstidsavganger i nærheten</span>
+                </div>
+                <div>
+                    <img id="arrow" width="50" src="img/down-arrow.svg"/>
+                </div>
+            </section>'
+        </div>
+    </div>
+    <footer class="ui-footer ui-bottom-button">
+        <a class="ui-btn" (click)="velgStoppested()">Velg stoppested</a>
+    </footer>
+    <div id="popup" class="ui-popup ui-popup-toast">
+        <div class="ui-popup-content" id="message">[Melding]</div>
+    </div>
+</div>

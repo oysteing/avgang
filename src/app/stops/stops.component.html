@@ -1,0 +1,21 @@
+<div class="ui-page ui-page-active" id="stoppested">
+    <header class="ui-header">
+        <h2 class="ui-title">Stoppested</h2>
+    </header>
+    <div class="ui-content content-padding">
+        <ul class="ui-listview" *ngFor="let feature of features">
+            <li (click)="selectStop(feature.properties.id)">
+                {{feature.properties.name}}
+            </li>
+        </ul>
+        <div *ngIf="positionError">
+            <div>{{positionError}}</div>
+        </div>
+        <div *ngIf="!features && !positionError">
+            Venter på posisjon..
+        </div>
+    </div>
+    <footer class="ui-footer ui-bottom-button" *ngIf="positionError">
+        <a class="ui-btn" (click)="getPosition()">Prøv igjen</a>
+    </footer>
+</div>
