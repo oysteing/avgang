@@ -26,7 +26,7 @@ export class StopsComponent implements OnInit {
     getPosition() {
         this.positionError = '';
         this.locationService.getCurrentPosition()
-            .then(position => enturApi.getStopPlacesByPosition(position.coords))
+            .then(position => enturApi.getStopPlacesByPosition(position.coords, {layers: ['venue']}))
             .then(features => {
                 this.features = features;
             })

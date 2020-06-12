@@ -124,7 +124,7 @@ query($stopPlaceId: String!)
   stopPlace(id: $stopPlaceId) {
     id
     name
-    estimatedCalls {
+    estimatedCalls(numberOfDepartures: 1) {
       realtime
       expectedDepartureTime
       forBoarding

@@ -3,8 +3,13 @@
         <h2 class="ui-title">{{departures?.name}}</h2>
     </header>
     <div class="ui-content content-padding">
-        <div *ngFor="let departure of departures?.estimatedCalls">
-            {{departure.destinationDisplay.frontText}}: {{departure.expectedDepartureTime}}
+        <div class="departure" *ngFor="let departure of departures?.estimatedCalls">
+            <div class="icon"></div>
+            <div class="destination">{{departure.destinationDisplay.frontText}}</div>
+            <div class="expectedTime">{{formatTime(departure.expectedDepartureTime)}}</div>
         </div>
     </div>
+    <footer class="ui-footer ui-bottom-button">
+        <a class="ui-btn" (click)="velgStoppested()">Velg stoppested</a>
+    </footer>
 </div>
